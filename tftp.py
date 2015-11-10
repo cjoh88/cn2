@@ -15,7 +15,7 @@ MODE_NETASCII= "netascii"
 MODE_OCTET=    "octet"
 MODE_MAIL=     "mail"
 
-TFTP_PORT= 6969
+TFTP_PORT= 69
 
 # Timeout in seconds
 TFTP_TIMEOUT= 2
@@ -114,10 +114,14 @@ def tftp_transfer(fd, hostname, direction):
         #print(msg)
     elif direction == TFTP_PUT:
         while(expected_block != 0):
+            print("1")
             s.sendto(make_packet_wrq(fd.name, MODE_OCTET), server_address)
+            print("2")
             msg, addr = s.recvfrom(1024)
+            print("3")
             opcode, expected_block, _ = parse_packet(msg)
             print("ACK: opcode: " + str(opcode) + " block: " + str(expected_block))
+        print("TADA!")
 
     else:
         print("TODO")
