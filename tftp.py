@@ -76,7 +76,7 @@ def parse_packet(msg):
         #datap = msg[4:].split('\0')
         #return opcode, blocknr, datap[0]
         datap = msg[4:516]
-        if len(datap != 512):
+        if len(datap) != 512:
             del datap[-1]
         return opcode, blocknr, datap
     elif opcode == OPCODE_ACK:
