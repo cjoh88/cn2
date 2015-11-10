@@ -79,7 +79,7 @@ def parse_packet(msg):
         blocknr = msg[2:]
         if len(blocknr) != 2:
             return None
-        return opcode, blocknr
+        return opcode, blocknr, None
     elif opcode == OPCODE_ERR:
         errorCode = msg[2:4]
         if len(errorCode) != 2:
@@ -116,7 +116,7 @@ def tftp_transfer(fd, hostname, direction):
         while(expected_block != 0):
             s.sendto(make_packet_wrq(fd.name, MODE_OCTET), server_address)
             msg, addr = s.recvfrom(1024)
-            opcode, expected_block = parse_packet(msg)
+            opcode, expected_block, _ = parse_packet(msg)
             print("ACK: opcode: " + opcode + " block: " + expected_block)
 
     else:
