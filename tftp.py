@@ -121,7 +121,7 @@ def tftp_transfer(fd, hostname, direction):
             print("3")
             opcode, expected_block, _ = parse_packet(msg)
             print("ACK: opcode: " + str(opcode) + " block: " + str(expected_block))
-        print("TADA!")
+        expected_block = 1;
 
     else:
         print("TODO")
@@ -152,6 +152,11 @@ def tftp_transfer(fd, hostname, direction):
                 print("File transfer complete")
                 break
         elif direction == TFTP_PUT:
+            chunk = fd.read(512)
+            packet = make_packet_data(expected_block, chunk)
+            s.sendto(packet, server_address)
+            msg, addr = recvfrom(1024)
+            print(msg)
             pass
         # read the next block from the file. Send new packet to server.
         # Don't forget to deal with timeouts and received error packets.
