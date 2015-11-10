@@ -154,6 +154,7 @@ def tftp_transfer(fd, hostname, direction):
                 break
         elif direction == TFTP_PUT:
             chunk = fd.read(512)
+            print(chunk)
             packet = make_packet_data(expected_block, chunk)
             s.sendto(packet, server_address)
             msg, addr = s.recvfrom(1024)
