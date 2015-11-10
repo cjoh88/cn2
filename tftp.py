@@ -155,7 +155,7 @@ def tftp_transfer(fd, hostname, direction):
             chunk = fd.read(512)
             packet = make_packet_data(expected_block, chunk)
             s.sendto(packet, server_address)
-            msg, addr = recvfrom(1024)
+            msg, addr = s.recvfrom(1024)
             print(msg)
             pass
         # read the next block from the file. Send new packet to server.
