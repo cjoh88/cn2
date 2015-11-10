@@ -117,7 +117,7 @@ def tftp_transfer(fd, hostname, direction):
             s.sendto(make_packet_wrq(fd.name, MODE_OCTET), server_address)
             msg, addr = s.recvfrom(1024)
             opcode, expected_block, _ = parse_packet(msg)
-            print("ACK: opcode: " + opcode + " block: " + expected_block)
+            print("ACK: opcode: " + str(opcode) + " block: " + str(expected_block))
 
     else:
         print("TODO")
