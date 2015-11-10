@@ -76,7 +76,7 @@ def parse_packet(msg):
         datap = msg[4:]
         return opcode, blocknr, datap
     elif opcode == OPCODE_ACK:
-        blocknr = msg[2:]
+        blocknr = struct.unpack("!H", msg[2:4])[0]
         if len(blocknr) != 2:
             return None
         return opcode, blocknr, None
