@@ -121,6 +121,7 @@ def tftp_transfer(fd, hostname, direction):
             print("3")
             opcode, expected_block, _ = parse_packet(msg)
             print("ACK: opcode: " + str(opcode) + " block: " + str(expected_block))
+            server_address = addr
         expected_block = 1;
 
     else:
