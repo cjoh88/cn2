@@ -73,8 +73,10 @@ def parse_packet(msg):
         return opcode, l[1], l[2]
     elif opcode == OPCODE_DATA:
         blocknr = struct.unpack("!H", msg[2:4])[0]
-        datap = msg[4:].split('\0')
-        return opcode, blocknr, datap[0]
+        #datap = msg[4:].split('\0')
+        #return opcode, blocknr, datap[0]
+        datap = msg[4:516]
+        return opcode, blocknr, datap
     elif opcode == OPCODE_ACK:
         blocknr = struct.unpack("!H", msg[2:4])[0]
         #if len(blocknr) != 2:
@@ -134,7 +136,6 @@ def tftp_transfer(fd, hostname, direction):
         if direction == TFTP_GET:
             msg, addr = s.recvfrom(1024)
             opcode, block, p_msg = parse_packet(msg)
-            #print(c)
             if opcode == OPCODE_ERR:
                 print(ERROR_CODES[block] + '\n' + p_msg)
                 break
@@ -147,7 +148,6 @@ def tftp_transfer(fd, hostname, direction):
             else:
                 print("received block " + str(block) + " again.")
             ack = make_packet_ack(block)
-            #s.sendto(ack, server_address)
             s.sendto(ack, addr)
             if(len(p_msg) != 512):
                 print("File transfer complete")
