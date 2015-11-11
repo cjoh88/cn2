@@ -91,7 +91,7 @@ def tftp_transfer(fd, hostname, direction):
     server_address = (ipv4addr, TFTP_PORT)
 
     expected_block = 1      # necessary for checking if correct block is sent or recv
-    read_next_chunk = True
+    chunk = None
     # Check if we are putting a file or getting a file and send
     #  the corresponding request.
     if direction == TFTP_GET:
@@ -105,6 +105,7 @@ def tftp_transfer(fd, hostname, direction):
                 print("Socket timed out")   # if socket times out, print and exit program
             opcode, expected_block, _ = parse_packet(msg)
             server_address = addr
+            chunk = fd.read(512)
         expected_block = 1;
 
     else:
@@ -131,27 +132,18 @@ def tftp_transfer(fd, hostname, direction):
         # if uploading a file
         elif direction == TFTP_PUT:
             try:
-                if read_next_chunk:
-                    chunk = fd.read(512)    # read 512 bytes of data
-                print(chunk)
                 packet = make_packet_data(expected_block, chunk)    # create packet
                 s.sendto(packet, server_address)    # send packet to server
                 msg, addr = s.recvfrom(1024)        # recv ack
                 opcode, block, _ = parse_packet(msg)    # parse packet
                 if opcode == OPCODE_ACK:        # check if ack is correct
                     if block == expected_block:
-                        read_next_chunk = True
-                        print("correct ack")
                         expected_block += 1     # increase expected_block to send next block next iteration
                         if len(chunk) < 512:    # if len < 512 upload is complete
                             print("File upload complete")
                             break
-                    else:
-                        read_next_chunk = False
-                else:
-                    read_next_chunk = False
+                        chunk = fd.read(512)
             except:
-                read_next_chunk = False
                 print("Exeption try again")
 
 
