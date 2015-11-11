@@ -138,13 +138,14 @@ def tftp_transfer(fd, hostname, direction):
                 opcode, block, _ = parse_packet(msg)    # parse packet
                 if opcode == OPCODE_ACK:        # check if ack is correct
                     if block == expected_block:
+                        print("Correct ack received")
                         expected_block += 1     # increase expected_block to send next block next iteration
                         if len(chunk) < 512:    # if len < 512 upload is complete
                             print("File upload complete")
                             break
                         chunk = fd.read(512)
             except:
-                print("Exeption try again")
+                print("Exception try again")
 
 
 
