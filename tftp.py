@@ -133,6 +133,7 @@ def tftp_transfer(fd, hostname, direction):
             try:
                 if read_next_chunk:
                     chunk = fd.read(512)    # read 512 bytes of data
+                print(chunk)
                 packet = make_packet_data(expected_block, chunk)    # create packet
                 s.sendto(packet, server_address)    # send packet to server
                 msg, addr = s.recvfrom(1024)        # recv ack
@@ -140,6 +141,7 @@ def tftp_transfer(fd, hostname, direction):
                 if opcode == OPCODE_ACK:        # check if ack is correct
                     if block == expected_block:
                         read_next_chunk = True
+                        print("correct ack")
                         expected_block += 1     # increase expected_block to send next block next iteration
                         if len(chunk) < 512:    # if len < 512 upload is complete
                             print("File upload complete")
