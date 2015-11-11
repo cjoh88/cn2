@@ -118,7 +118,7 @@ def tftp_transfer(fd, hostname, direction):
             try:
                 msg, addr = s.recvfrom(1024)
             except:
-                print("Sending new ack: " + expected_block)
+                print("Sending new ack: " + str(expected_block))
                 ack = make_packet_ack(expected_block)
                 s.sendto(ack, addr)
             opcode, block, p_msg = parse_packet(msg)
