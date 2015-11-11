@@ -35,24 +35,18 @@ TFTP_PUT = 2
 
 
 def make_packet_rrq(filename, mode):
-    # Note the exclamation mark in the format string to pack(). What is it for?
     return struct.pack("!H", OPCODE_RRQ) + filename + '\0' + mode + '\0'
 
 def make_packet_wrq(filename, mode):
-    #return "" # TODO
     return struct.pack("!H", OPCODE_WRQ) + filename + '\0' + mode + '\0'
 
 def make_packet_data(blocknr, data):
-    #return "" # TODO
-    #return struct.pack("!HH", OPCODE_DATA, blocknr) + struct.pack("!H",data)
     return struct.pack("!HH", OPCODE_DATA, blocknr) + data
 
 def make_packet_ack(blocknr):
-    #return "" # TODO
     return struct.pack("!HH", OPCODE_ACK, blocknr)
 
 def make_packet_err(errcode, errmsg):
-    #return "" # TODO
     return struct.pack("!H", OPCODE_ERR) + errcode + '\0' + errmsg + '\0'
 
 def parse_packet(msg):
@@ -73,12 +67,7 @@ def parse_packet(msg):
         return opcode, l[1], l[2]
     elif opcode == OPCODE_DATA:
         blocknr = struct.unpack("!H", msg[2:4])[0]
-        #datap = msg[4:].split('\0')
-        #return opcode, blocknr, datap[0]
         datap = msg[4:516]
-        if len(datap) != 512:
-            #datap = datap[:-1]
-            pass
         return opcode, blocknr, datap
     elif opcode == OPCODE_ACK:
         blocknr = struct.unpack("!H", msg[2:4])[0]
@@ -95,45 +84,32 @@ def parse_packet(msg):
         return None
 
 def tftp_transfer(fd, hostname, direction):
-    try:
-        #BIG EXPLORE
-        #ipv4addr = socket.gethostbyname(hostname)
-
-        # Implement this function
-        #print(hostname)
+    try:        # try block necessary for handling socket timeout
         # Open socket interface
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(2.0)
-        #print(str(TFTP_PORT))
-        #(family, socketType, proto, canonname, socketaddr) = socket.getaddrinfo(hostname, 69, 0, 0, socket.IPPROTO_UDP)
-        #s.bind((ipv4addr, TFTP_PORT))
-        ipv4addr = socket.gethostbyname(hostname)
+        s.settimeout(2.0)       # set timeout to 2 seconds
+        ipv4addr = socket.gethostbyname(hostname)       # get the ipv4 address for host
         server_address = (ipv4addr, TFTP_PORT)
 
-
-        expected_block = 1
+        expected_block = 1      # necessary for checking if correct block is sent or recv
         # Check if we are putting a file or getting a file and send
         #  the corresponding request.
         if direction == TFTP_GET:
-            s.sendto(make_packet_rrq(fd.name, MODE_OCTET), server_address)
-            #msg, addr = s.recvfrom(1024)
-            #print(msg)
+            s.sendto(make_packet_rrq(fd.name, MODE_OCTET), server_address)      # send rrq
         elif direction == TFTP_PUT:
             while(expected_block != 0):
-                s.sendto(make_packet_wrq(fd.name, MODE_OCTET), server_address)
-                msg, addr = s.recvfrom(1024)
+                s.sendto(make_packet_wrq(fd.name, MODE_OCTET), server_address)  # send wrq
+                msg, addr = s.recvfrom(1024)                # recv ack for wrq
                 opcode, expected_block, _ = parse_packet(msg)
-                #print("ACK: opcode: " + str(opcode) + " block: " + str(expected_block))
                 server_address = addr
             expected_block = 1;
 
         else:
             print("Error")
-            #TODO ERROR
 
         # Put or get the file, block by block, in a loop.
         while True:
-            # Wait for packet, write the data to the filedescriptor or
+            # if downloading file
             if direction == TFTP_GET:
                 msg, addr = s.recvfrom(1024)
                 opcode, block, p_msg = parse_packet(msg)
@@ -146,29 +122,24 @@ def tftp_transfer(fd, hostname, direction):
                     expected_block += 1
                 ack = make_packet_ack(block)
                 s.sendto(ack, addr)
-                if(len(p_msg) != 512):
+                if(len(p_msg) != 512):      # if len < 512 download is complete
                     print("File download complete")
                     break
+            # if uploading a file
             elif direction == TFTP_PUT:
-                chunk = fd.read(512)
-                packet = make_packet_data(expected_block, chunk)
-                s.sendto(packet, server_address)
-                msg, addr = s.recvfrom(1024)
-                opcode, block, _ = parse_packet(msg)
-                if opcode == OPCODE_ACK:
+                chunk = fd.read(512)    # read 512 bytes of data
+                packet = make_packet_data(expected_block, chunk)    # create packet
+                s.sendto(packet, server_address)    # send packet to server
+                msg, addr = s.recvfrom(1024)        # recv ack
+                opcode, block, _ = parse_packet(msg)    # parse packet
+                if opcode == OPCODE_ACK:        # check if ack is correct
                     if block == expected_block:
-                        expected_block += 1
-                        if len(chunk) < 512:
+                        expected_block += 1     # increase expected_block to send next block next iteration
+                        if len(chunk) < 512:    # if len < 512 upload is complete
                             print("File upload complete")
                             break
-
-                #print(msg)
-                pass
-            # read the next block from the file. Send new packet to server.
-            # Don't forget to deal with timeouts and received error packets.
-            pass
     except:
-        print("Socket timed out")
+        print("Socket timed out")   # if socket times out, print and exit program
 
 
 def usage():
