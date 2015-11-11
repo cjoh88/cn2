@@ -86,7 +86,7 @@ def parse_packet(msg):
 def tftp_transfer(fd, hostname, direction):
     # Open socket interface
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.settimeout(2.0)       # set timeout to 2 seconds
+    s.settimeout(TFTP_TIMEOUT)       # set timeout to 2 seconds
     ipv4addr = socket.gethostbyname(hostname)       # get the ipv4 address for host
     server_address = (ipv4addr, TFTP_PORT)
 
@@ -150,6 +150,7 @@ def tftp_transfer(fd, hostname, direction):
                     read_next_chunk = False
             except:
                 read_next_chunk = False
+                print("Exeption try again")
 
 
 
