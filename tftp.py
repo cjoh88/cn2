@@ -117,10 +117,11 @@ def tftp_transfer(fd, hostname, direction):
         if direction == TFTP_GET:
             try:
                 msg, addr = s.recvfrom(1024)
+                server_addr = addr
             except:
                 print("Sending new ack: " + str(expected_block))
                 ack = make_packet_ack(expected_block)
-                s.sendto(ack, addr)
+                s.sendto(ack, server_addr)
             opcode, block, p_msg = parse_packet(msg)
             if opcode == OPCODE_ERR:
                 print(ERROR_CODES[block] + '\n' + p_msg)
@@ -130,7 +131,7 @@ def tftp_transfer(fd, hostname, direction):
                 fd.write(p_msg)
                 expected_block += 1
             ack = make_packet_ack(block)
-            s.sendto(ack, addr)
+            s.sendto(ack, server_addr)
             if(len(p_msg) != 512):      # if len < 512 download is complete
                 print("File download complete")
                 break
@@ -143,14 +144,15 @@ def tftp_transfer(fd, hostname, direction):
                 opcode, block, _ = parse_packet(msg)    # parse packet
                 if opcode == OPCODE_ACK:        # check if ack is correct
                     if block == expected_block:
-                        print("Correct ack for block: " + str(expected_block))
+                        #print("Correct ack for block: " + str(expected_block))
                         expected_block += 1     # increase expected_block to send next block next iteration
                         if len(chunk) < 512:    # if len < 512 upload is complete
                             print("File upload complete")
                             break
                         chunk = fd.read(512)
             except:
-                print("Exception try again")
+                pass
+                #print("Exception try again")
 
 
 
