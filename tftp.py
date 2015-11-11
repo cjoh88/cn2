@@ -84,50 +84,53 @@ def parse_packet(msg):
         return None
 
 def tftp_transfer(fd, hostname, direction):
-    try:        # try block necessary for handling socket timeout
-        # Open socket interface
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(2.0)       # set timeout to 2 seconds
-        ipv4addr = socket.gethostbyname(hostname)       # get the ipv4 address for host
-        server_address = (ipv4addr, TFTP_PORT)
+    # Open socket interface
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(2.0)       # set timeout to 2 seconds
+    ipv4addr = socket.gethostbyname(hostname)       # get the ipv4 address for host
+    server_address = (ipv4addr, TFTP_PORT)
 
-        expected_block = 1      # necessary for checking if correct block is sent or recv
-        read_next_chunk = True
-        # Check if we are putting a file or getting a file and send
-        #  the corresponding request.
-        if direction == TFTP_GET:
-            s.sendto(make_packet_rrq(fd.name, MODE_OCTET), server_address)      # send rrq
-        elif direction == TFTP_PUT:
-            while(expected_block != 0):
-                s.sendto(make_packet_wrq(fd.name, MODE_OCTET), server_address)  # send wrq
+    expected_block = 1      # necessary for checking if correct block is sent or recv
+    read_next_chunk = True
+    # Check if we are putting a file or getting a file and send
+    #  the corresponding request.
+    if direction == TFTP_GET:
+        s.sendto(make_packet_rrq(fd.name, MODE_OCTET), server_address)      # send rrq
+    elif direction == TFTP_PUT:
+        while(expected_block != 0):
+            s.sendto(make_packet_wrq(fd.name, MODE_OCTET), server_address)  # send wrq
+            try:        # try block necessary for handling socket timeout
                 msg, addr = s.recvfrom(1024)                # recv ack for wrq
-                opcode, expected_block, _ = parse_packet(msg)
-                server_address = addr
-            expected_block = 1;
+            except:
+                print("Socket timed out")   # if socket times out, print and exit program
+            opcode, expected_block, _ = parse_packet(msg)
+            server_address = addr
+        expected_block = 1;
 
-        else:
-            print("Error")
+    else:
+        print("Error")
 
-        # Put or get the file, block by block, in a loop.
-        while True:
-            # if downloading file
-            if direction == TFTP_GET:
-                msg, addr = s.recvfrom(1024)
-                opcode, block, p_msg = parse_packet(msg)
-                if opcode == OPCODE_ERR:
-                    print(ERROR_CODES[block] + '\n' + p_msg)
-                    break
+    # Put or get the file, block by block, in a loop.
+    while True:
+        # if downloading file
+        if direction == TFTP_GET:
+            msg, addr = s.recvfrom(1024)
+            opcode, block, p_msg = parse_packet(msg)
+            if opcode == OPCODE_ERR:
+                print(ERROR_CODES[block] + '\n' + p_msg)
+                break
 
-                if expected_block == block:
-                    fd.write(p_msg)
-                    expected_block += 1
-                ack = make_packet_ack(block)
-                s.sendto(ack, addr)
-                if(len(p_msg) != 512):      # if len < 512 download is complete
-                    print("File download complete")
-                    break
-            # if uploading a file
-            elif direction == TFTP_PUT:
+            if expected_block == block:
+                fd.write(p_msg)
+                expected_block += 1
+            ack = make_packet_ack(block)
+            s.sendto(ack, addr)
+            if(len(p_msg) != 512):      # if len < 512 download is complete
+                print("File download complete")
+                break
+        # if uploading a file
+        elif direction == TFTP_PUT:
+            try:
                 if read_next_chunk:
                     chunk = fd.read(512)    # read 512 bytes of data
                 packet = make_packet_data(expected_block, chunk)    # create packet
@@ -145,8 +148,9 @@ def tftp_transfer(fd, hostname, direction):
                         read_next_chunk = False
                 else:
                     read_next_chunk = False
-    except:
-        print("Socket timed out")   # if socket times out, print and exit program
+            except:
+                read_next_chunk = False
+
 
 
 def usage():
