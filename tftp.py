@@ -115,7 +115,12 @@ def tftp_transfer(fd, hostname, direction):
     while True:
         # if downloading file
         if direction == TFTP_GET:
-            msg, addr = s.recvfrom(1024)
+            try:
+                msg, addr = s.recvfrom(1024)
+            except:
+                print("Sending new ack: " + expected_block)
+                ack = make_packet_ack(expected_block)
+                s.sendto(ack, addr)
             opcode, block, p_msg = parse_packet(msg)
             if opcode == OPCODE_ERR:
                 print(ERROR_CODES[block] + '\n' + p_msg)
