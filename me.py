@@ -204,7 +204,7 @@ def main():
     fd.write(filename + "\n")
     fd.write("GET" + "\n")
     for p in port:
-        fd.write(str(port) + "\n")
+        fd.write(str(p) + "\n")
         for i in iterations:
             start = time.time()
             tftp("pdf.pdf", TFTP_GET)
@@ -212,7 +212,7 @@ def main():
             fd.write(str(end-start) + "\n")
     fd.write("POST" + "\n")
     for p in port:
-        fd.write(str(port) + "\n")
+        fd.write(str(p) + "\n")
         for i in iterations:
             start = time.time()
             tftp("pdf.pdf", TFTP_PUT)
