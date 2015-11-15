@@ -201,20 +201,20 @@ def main():
                     fd.write(str(end-start) + "\n")
                     #print(str(end-start))
     fd.write(filename + "\n")
-    fd.write("GET" + "\n")
-    for p in port:
-        fd.write(str(p) + "\n")
-        for i in iterations:
-            start = time.time()
-            tftp("pdf.pdf", TFTP_GET, p)
-            end = time.time()
-            fd.write(str(end-start) + "\n")
     fd.write("PUT" + "\n")
     for p in port:
         fd.write(str(p) + "\n")
         for i in range(0,2):
             start = time.time()
             tftp("a.jpg", TFTP_PUT, p)
+            end = time.time()
+            fd.write(str(end-start) + "\n")
+    fd.write("GET" + "\n")
+    for p in port:
+        fd.write(str(p) + "\n")
+        for i in iterations:
+            start = time.time()
+            tftp("a.jpg", TFTP_GET, p)
             end = time.time()
             fd.write(str(end-start) + "\n")
     fd.close()
