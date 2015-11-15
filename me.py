@@ -15,7 +15,7 @@ MODE_NETASCII= "netascii"
 MODE_OCTET=    "octet"
 MODE_MAIL=     "mail"
 
-TFTP_PORT= 69
+#TFTP_PORT= 69
 
 # Timeout in seconds
 TFTP_TIMEOUT= 2
@@ -83,12 +83,12 @@ def parse_packet(msg):
     else:
         return None
 
-def tftp_transfer(fd, hostname, direction):
+def tftp_transfer(fd, hostname, direction, port):
     # Open socket interface
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(TFTP_TIMEOUT)       # set timeout to 2 seconds
     ipv4addr = socket.gethostbyname(hostname)       # get the ipv4 address for host
-    server_address = (ipv4addr, TFTP_PORT)
+    server_address = (ipv4addr, port)
 
     expected_block = 1      # necessary for checking if correct block is sent or recv
     chunk = None
@@ -162,7 +162,7 @@ def usage():
     sys.exit(1)
 
 
-def tftp(filename, direction):
+def tftp(filename, direction, port):
     hostname = "rabbit.it.uu.se"
 
     if direction == TFTP_GET:
@@ -179,7 +179,7 @@ def tftp(filename, direction):
         sys.stderr.write("File error (%s): %s\n" % (filename, e.strerror))
         sys.exit(2)
 
-    tftp_transfer(fd, hostname, direction)
+    tftp_transfer(fd, hostname, direction, port)
     fd.close()
 
 def main():
@@ -194,10 +194,9 @@ def main():
             fd.write("GET" + "\n")
             for p in port:
                 fd.write(str(p) + "\n")
-                TFTP_PORT = p
                 for i in iterations:
                     start = time.time()
-                    tftp(filename, TFTP_GET)
+                    tftp(filename, TFTP_GET, p)
                     end = time.time()
                     fd.write(str(end-start) + "\n")
                     #print(str(end-start))
@@ -207,7 +206,7 @@ def main():
         fd.write(str(p) + "\n")
         for i in iterations:
             start = time.time()
-            tftp("pdf.pdf", TFTP_GET)
+            tftp("pdf.pdf", TFTP_GET, p)
             end = time.time()
             fd.write(str(end-start) + "\n")
     fd.write("POST" + "\n")
@@ -215,7 +214,7 @@ def main():
         fd.write(str(p) + "\n")
         for i in iterations:
             start = time.time()
-            tftp("pdf.pdf", TFTP_PUT)
+            tftp("pdf.pdf", TFTP_PUT, p)
             end = time.time()
             fd.write(str(end-start) + "\n")
     fd.close()
