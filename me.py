@@ -209,12 +209,12 @@ def main():
             tftp("pdf.pdf", TFTP_GET, p)
             end = time.time()
             fd.write(str(end-start) + "\n")
-    fd.write("POST" + "\n")
+    fd.write("PUT" + "\n")
     for p in port:
         fd.write(str(p) + "\n")
-        for i in iterations:
+        for i in range(0,2):
             start = time.time()
-            tftp("pdf.pdf", TFTP_PUT, p)
+            tftp("a.jpg", TFTP_PUT, p)
             end = time.time()
             fd.write(str(end-start) + "\n")
     fd.close()
