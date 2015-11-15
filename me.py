@@ -204,7 +204,7 @@ def main():
     fd.write("PUT" + "\n")
     for p in port:
         fd.write(str(p) + "\n")
-        for i in range(0,2):
+        for i in iterations:
             start = time.time()
             tftp("a.jpg", TFTP_PUT, p)
             end = time.time()
