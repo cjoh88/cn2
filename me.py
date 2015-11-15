@@ -184,7 +184,7 @@ def tftp(filename, direction):
 
 def main():
     fd = open("results.txt", 'wb')
-    files = ["small.txt", "medium.pdf", "large.pdf"]
+    files = ["small.txt", "medium.pdf", "large.jpg"]
     direction = [TFTP_GET]
     iterations = range(0,10)
     port = [69, 11069, 12069, 13069]
@@ -193,13 +193,13 @@ def main():
         for d in direction:
             fd.write("GET" + "\n")
             for p in port:
-                fd.write(str(port) + "\n")
+                fd.write(str(p) + "\n")
                 TFTP_PORT = p
                 for i in iterations:
                     start = time.time()
                     tftp(filename, TFTP_GET)
                     end = time.time()
-                    fd.write(str(end-start))
+                    fd.write(str(end-start) + "\n")
                     #print(str(end-start))
     fd.write(filename + "\n")
     fd.write("GET" + "\n")
@@ -209,7 +209,7 @@ def main():
             start = time.time()
             tftp("pdf.pdf", TFTP_GET)
             end = time.time()
-            fd.write(str(end-start))
+            fd.write(str(end-start) + "\n")
     fd.write("POST" + "\n")
     for p in port:
         fd.write(str(port) + "\n")
@@ -217,8 +217,8 @@ def main():
             start = time.time()
             tftp("pdf.pdf", TFTP_PUT)
             end = time.time()
-            fd.write(str(end-start))
-
+            fd.write(str(end-start) + "\n")
+    fd.close()
 
 if __name__ == "__main__":
     main()
