@@ -197,7 +197,7 @@ def main():
                 TFTP_PORT = p
                 for i in iterations:
                     start = time.time()
-                    tftp(f, TFTP_GET)
+                    tftp(filename, TFTP_GET)
                     end = time.time()
                     fd.write(str(end-start))
                     #print(str(end-start))
