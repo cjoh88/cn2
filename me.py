@@ -163,7 +163,7 @@ def usage():
 
 
 def tftp(filename, direction):
-    hostname = rabbit.it.uu.se
+    hostname = "rabbit.it.uu.se"
 
     if direction == TFTP_GET:
         print "Transfer file %s from host %s" % (filename, hostname)
