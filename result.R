@@ -1,3 +1,4 @@
+run = function() {
 #small.txt
 #GET
 #6969
@@ -185,7 +186,7 @@ medium_13069 = c(
 
 mean_small_6969 = mean(small_6969)
 mean_small_11069 = mean(small_11069)
-mean_small_13069 = mean(small_13069)
+mean_small_12069 = mean(small_12069)
 mean_small_13069 = mean(small_13069)
 
 small_6969_standard_deviation = sd(small_6969)
@@ -202,11 +203,41 @@ critical_error_11069 = (small_11069_standard_deviation / sqrt(20)) * 1.96
 critical_error_12069 = (small_12069_standard_deviation / sqrt(20)) * 1.96
 critical_error_13069 = (small_13069_standard_deviation / sqrt(20)) * 1.96
 
+print("Confidence level:")
+print(confidence_level)
+print("---------------------------------------")
+
+print("small.txt on port:  6969:")
+print(mean_small_6969)
+print("+-")
+print(critical_error_6969)
+
+print("---------------------------------------")
+
+print("small.txt on port:  11069:")
+print(mean_small_11069)
+print("+-")
+print(critical_error_11069)
+
+print("---------------------------------------")
+
+print("small.txt on port:  12069:")
+print(mean_small_12069)
+print("+-")
+print(critical_error_12069)
+
+print("---------------------------------------")
+
+print("small.txt on port:  13069:")
+print(mean_small_13069)
+print("+-")
+print(critical_error_13069)
+
+print("---------------------------------------")
 
 
+}
 
-
-
-
+run()
 
 
